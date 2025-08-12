@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Availability Scheduler</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-color: #ecf0f1;
+            --highlight-color: #1abc9c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+        
+        .instructions {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            gap: 4px;
+            margin-bottom: 25px;
+        }
+        
+        .time-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        
+        .day-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        
+        .time-slot {
+            height: 40px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border-radius: 3px;
+        }
+        
+        .time-slot:hover {
+            background-color: #e9ecef;
+        }
+        
+        .time-slot.selected {
+            background-color: var(--highlight-color);
+            color: white;
+            border-color: var(--highlight-color);
+            font-weight: bold;
+        }
+        
+        .time-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: var(--light-color);
+            border-radius: 4px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .quick-select {
+            margin-bottom: 20px;
+        }
+        
+        .quick-select button {
+            margin-right: 10px;
+            background-color: var(--secondary-color);
+        }
+        
+        .quick-select button:hover {
+            background-color: #2c3e50;
+        }
+        
+        @media (max-width: 768px) {
+            .schedule-grid {
+                grid-template-columns: 80px repeat(5, 1fr);
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">STUDENT AVAILABILITY SCHEDULER</div>
+        
+        <h1>Select Your Available Times</h1>
+        
+        <div class="instructions">
+            <p>Click on the time slots when you're available. Selected times will turn green. 
+            You can click again to deselect. When finished, click "Submit Availability".</p>
+        </div>
+        
+        <div class="quick-select">
+            <p>Quick select:</p>
+            <button onclick="selectMorning()">8:40 - 12:00</button>
+            <button onclick="selectAfternoon()">14:30 - 20:00</button>
+            <button onclick="selectAll()">Select All</button>
+            <button onclick="clearAll()">Clear All</button>
+        </div>
+        
+        <div class="schedule-grid" id="schedule">
+            <!-- Time labels column -->
+            <div class="time-header">Time</div>
+            <div class="day-header">Monday</div>
+            <div class="day-header">Tuesday</div>
+            <div class="day-header">Wednesday</div>
+            <div class="day-header">Thursday</div>
+            <div class="day-header">Friday</div>
+            
+            <!-- Time slots will be generated by JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button onclick="submitAvailability()">Submit Availability</button>
+            <button onclick="clearAll()">Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // Generate time slots
+        const scheduleGrid = document.getElementById('schedule');
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const startHour = 8;
+        const endHour = 20;
+        const interval = 20; // minutes
+        
+        // Create time slots
+        for (let hour = startHour; hour <= endHour; hour++) {
+            for (let minute = 0; minute < 60; minute += interval) {
+                if (hour === endHour && minute > 0) break;
+                
+                // Format time display
+                const displayHour = hour > 12 ? hour - 12 : hour;
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const displayMinute = minute.toString().padStart(2, '0');
+                const timeString = `${displayHour}:${displayMinute} ${ampm}`;
+                
+                // Add time label
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                timeLabel.textContent = timeString;
+                scheduleGrid.appendChild(timeLabel);
+                
+                // Add time slots for each day
+                days.forEach(day => {
+                    const timeSlot = document.createElement('div');
+                    timeSlot.className = 'time-slot';
+                    timeSlot.dataset.day = day;
+                    timeSlot.dataset.hour = hour;
+                    timeSlot.dataset.minute = minute;
+                    
+                    timeSlot.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                    });
+                    
+                    scheduleGrid.appendChild(timeSlot);
+                });
+            }
+        }
+        
+        // Quick select functions
+        function selectMorning() {
+            clearAll();
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                const hour = parseInt(slot.dataset.hour);
+                const minute = parseInt(slot.dataset.minute);
+                
+                // Select from 8:40 to 12:00
+                if ((hour === 8 && minute >= 40) || 
+                    (hour > 8 && hour < 12) || 
+                    (hour === 12 && minute === 0)) {
+                    slot.classList.add('selected');
+                }
+            });
+        }
+        
+        function selectAfternoon() {
+            clearAll();
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                const hour = parseInt(slot.dataset.hour);
+                const minute = parseInt(slot.dataset.minute);
+                
+                // Select from 14:30 to 20:00
+                if ((hour === 14 && minute >= 30) || 
+                    (hour > 14 && hour < 20) || 
+                    (hour === 20 && minute === 0)) {
+                    slot.classList.add('selected');
+                }
+            });
+        }
+        
+        function selectAll() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                slot.classList.add('selected');
+            });
+        }
+        
+        function clearAll() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                slot.classList.remove('selected');
+            });
+        }
+        
+        function submitAvailability() {
+            const selectedSlots = document.querySelectorAll('.time-slot.selected');
+            const availability = {};
+            
+            days.forEach(day => {
+                availability[day] = [];
+            });
+            
+            selectedSlots.forEach(slot => {
+                const day = slot.dataset.day;
+                const hour = parseInt(slot.dataset.hour);
+                const minute = parseInt(slot.dataset.minute);
+                
+                availability[day].push({
+                    hour: hour,
+                    minute: minute
+                });
+            });
+            
+            // Process availability data (in a real app, this would be sent to a server)
+            console.log("Submitted availability:", availability);
+            
+            // Show confirmation
+            alert("Your availability has been submitted successfully!");
+        }
+    </script>
+</body>
+</html>
