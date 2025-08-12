@@ -23,7 +23,7 @@
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: white;
             border-radius: 8px;
@@ -52,22 +52,20 @@
             border-radius: 6px;
             margin-bottom: 25px;
             border-left: 4px solid var(--accent-color);
+            text-align: center;
         }
         
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: 100px repeat(5, 1fr);
-            gap: 4px;
+        .schedule-container {
+            display: flex;
+            gap: 10px;
             margin-bottom: 25px;
         }
         
-        .time-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            border-radius: 4px;
+        .day-column {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
         }
         
         .day-header {
@@ -77,56 +75,68 @@
             text-align: center;
             font-weight: bold;
             border-radius: 4px;
+            margin-bottom: 5px;
         }
         
-        .time-slot {
-            height: 40px;
+        .time-block {
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
+            height: 40px;
+            margin-bottom: 5px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
             border-radius: 3px;
         }
         
-        .time-slot:hover {
+        .time-block:hover {
             background-color: #e9ecef;
         }
         
-        .time-slot.selected {
+        .time-block.selected {
             background-color: var(--highlight-color);
             color: white;
             border-color: var(--highlight-color);
             font-weight: bold;
         }
         
-        .time-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .time-range {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            text-align: center;
             font-weight: bold;
-            background-color: var(--light-color);
             border-radius: 4px;
+            margin-right: 10px;
+            width: 100px;
+        }
+        
+        .time-labels {
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+            width: 100px;
         }
         
         .controls {
             display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
         }
         
         button {
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.2s;
+            font-size: 1rem;
         }
         
         button:hover {
@@ -134,11 +144,15 @@
         }
         
         .quick-select {
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
         }
         
         .quick-select button {
-            margin-right: 10px;
+            padding: 8px 16px;
             background-color: var(--secondary-color);
         }
         
@@ -147,9 +161,27 @@
         }
         
         @media (max-width: 768px) {
-            .schedule-grid {
-                grid-template-columns: 80px repeat(5, 1fr);
-                font-size: 0.9rem;
+            .schedule-container {
+                flex-direction: column;
+            }
+            
+            .day-column {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .day-header {
+                width: 100%;
+            }
+            
+            .time-labels {
+                display: none;
+            }
+            
+            .time-block {
+                width: calc(50% - 5px);
+                height: 30px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -161,28 +193,88 @@
         <h1>Select Your Available Times</h1>
         
         <div class="instructions">
-            <p>Click on the time slots when you're available. Selected times will turn green. 
-            You can click again to deselect. When finished, click "Submit Availability".</p>
+            <p>Click on the time blocks when you're available. Selected blocks turn green.</p>
+            <p>Use quick select buttons below for common time ranges.</p>
         </div>
         
         <div class="quick-select">
-            <p>Quick select:</p>
             <button onclick="selectMorning()">8:40 - 12:00</button>
             <button onclick="selectAfternoon()">14:30 - 20:00</button>
             <button onclick="selectAll()">Select All</button>
             <button onclick="clearAll()">Clear All</button>
         </div>
         
-        <div class="schedule-grid" id="schedule">
-            <!-- Time labels column -->
-            <div class="time-header">Time</div>
-            <div class="day-header">Monday</div>
-            <div class="day-header">Tuesday</div>
-            <div class="day-header">Wednesday</div>
-            <div class="day-header">Thursday</div>
-            <div class="day-header">Friday</div>
+        <div class="schedule-container">
+            <div class="time-labels">
+                <div class="time-range">Time</div>
+                <div class="time-block">8:40 AM</div>
+                <div class="time-block">10:00 AM</div>
+                <div class="time-block">12:00 PM</div>
+                <div class="time-block">2:30 PM</div>
+                <div class="time-block">4:00 PM</div>
+                <div class="time-block">6:00 PM</div>
+                <div class="time-block">8:00 PM</div>
+            </div>
             
-            <!-- Time slots will be generated by JavaScript -->
+            <!-- Monday -->
+            <div class="day-column">
+                <div class="day-header">Monday</div>
+                <div class="time-block" data-day="Monday" data-time="8:40"></div>
+                <div class="time-block" data-day="Monday" data-time="10:00"></div>
+                <div class="time-block" data-day="Monday" data-time="12:00"></div>
+                <div class="time-block" data-day="Monday" data-time="14:30"></div>
+                <div class="time-block" data-day="Monday" data-time="16:00"></div>
+                <div class="time-block" data-day="Monday" data-time="18:00"></div>
+                <div class="time-block" data-day="Monday" data-time="20:00"></div>
+            </div>
+            
+            <!-- Tuesday -->
+            <div class="day-column">
+                <div class="day-header">Tuesday</div>
+                <div class="time-block" data-day="Tuesday" data-time="8:40"></div>
+                <div class="time-block" data-day="Tuesday" data-time="10:00"></div>
+                <div class="time-block" data-day="Tuesday" data-time="12:00"></div>
+                <div class="time-block" data-day="Tuesday" data-time="14:30"></div>
+                <div class="time-block" data-day="Tuesday" data-time="16:00"></div>
+                <div class="time-block" data-day="Tuesday" data-time="18:00"></div>
+                <div class="time-block" data-day="Tuesday" data-time="20:00"></div>
+            </div>
+            
+            <!-- Wednesday -->
+            <div class="day-column">
+                <div class="day-header">Wednesday</div>
+                <div class="time-block" data-day="Wednesday" data-time="8:40"></div>
+                <div class="time-block" data-day="Wednesday" data-time="10:00"></div>
+                <div class="time-block" data-day="Wednesday" data-time="12:00"></div>
+                <div class="time-block" data-day="Wednesday" data-time="14:30"></div>
+                <div class="time-block" data-day="Wednesday" data-time="16:00"></div>
+                <div class="time-block" data-day="Wednesday" data-time="18:00"></div>
+                <div class="time-block" data-day="Wednesday" data-time="20:00"></div>
+            </div>
+            
+            <!-- Thursday -->
+            <div class="day-column">
+                <div class="day-header">Thursday</div>
+                <div class="time-block" data-day="Thursday" data-time="8:40"></div>
+                <div class="time-block" data-day="Thursday" data-time="10:00"></div>
+                <div class="time-block" data-day="Thursday" data-time="12:00"></div>
+                <div class="time-block" data-day="Thursday" data-time="14:30"></div>
+                <div class="time-block" data-day="Thursday" data-time="16:00"></div>
+                <div class="time-block" data-day="Thursday" data-time="18:00"></div>
+                <div class="time-block" data-day="Thursday" data-time="20:00"></div>
+            </div>
+            
+            <!-- Friday -->
+            <div class="day-column">
+                <div class="day-header">Friday</div>
+                <div class="time-block" data-day="Friday" data-time="8:40"></div>
+                <div class="time-block" data-day="Friday" data-time="10:00"></div>
+                <div class="time-block" data-day="Friday" data-time="12:00"></div>
+                <div class="time-block" data-day="Friday" data-time="14:30"></div>
+                <div class="time-block" data-day="Friday" data-time="16:00"></div>
+                <div class="time-block" data-day="Friday" data-time="18:00"></div>
+                <div class="time-block" data-day="Friday" data-time="20:00"></div>
+            </div>
         </div>
         
         <div class="controls">
@@ -192,118 +284,62 @@
     </div>
 
     <script>
-        // Generate time slots
-        const scheduleGrid = document.getElementById('schedule');
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        const startHour = 8;
-        const endHour = 20;
-        const interval = 20; // minutes
-        
-        // Create time slots
-        for (let hour = startHour; hour <= endHour; hour++) {
-            for (let minute = 0; minute < 60; minute += interval) {
-                if (hour === endHour && minute > 0) break;
-                
-                // Format time display
-                const displayHour = hour > 12 ? hour - 12 : hour;
-                const ampm = hour >= 12 ? 'PM' : 'AM';
-                const displayMinute = minute.toString().padStart(2, '0');
-                const timeString = `${displayHour}:${displayMinute} ${ampm}`;
-                
-                // Add time label
-                const timeLabel = document.createElement('div');
-                timeLabel.className = 'time-label';
-                timeLabel.textContent = timeString;
-                scheduleGrid.appendChild(timeLabel);
-                
-                // Add time slots for each day
-                days.forEach(day => {
-                    const timeSlot = document.createElement('div');
-                    timeSlot.className = 'time-slot';
-                    timeSlot.dataset.day = day;
-                    timeSlot.dataset.hour = hour;
-                    timeSlot.dataset.minute = minute;
-                    
-                    timeSlot.addEventListener('click', function() {
-                        this.classList.toggle('selected');
-                    });
-                    
-                    scheduleGrid.appendChild(timeSlot);
-                });
-            }
-        }
+        // Initialize time blocks
+        document.querySelectorAll('.time-block').forEach(block => {
+            block.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
         
         // Quick select functions
         function selectMorning() {
             clearAll();
-            const slots = document.querySelectorAll('.time-slot');
-            slots.forEach(slot => {
-                const hour = parseInt(slot.dataset.hour);
-                const minute = parseInt(slot.dataset.minute);
-                
-                // Select from 8:40 to 12:00
-                if ((hour === 8 && minute >= 40) || 
-                    (hour > 8 && hour < 12) || 
-                    (hour === 12 && minute === 0)) {
-                    slot.classList.add('selected');
-                }
+            document.querySelectorAll('.time-block[data-time="8:40"], .time-block[data-time="10:00"], .time-block[data-time="12:00"]').forEach(block => {
+                block.classList.add('selected');
             });
         }
         
         function selectAfternoon() {
             clearAll();
-            const slots = document.querySelectorAll('.time-slot');
-            slots.forEach(slot => {
-                const hour = parseInt(slot.dataset.hour);
-                const minute = parseInt(slot.dataset.minute);
-                
-                // Select from 14:30 to 20:00
-                if ((hour === 14 && minute >= 30) || 
-                    (hour > 14 && hour < 20) || 
-                    (hour === 20 && minute === 0)) {
-                    slot.classList.add('selected');
-                }
+            document.querySelectorAll('.time-block[data-time="14:30"], .time-block[data-time="16:00"], .time-block[data-time="18:00"], .time-block[data-time="20:00"]').forEach(block => {
+                block.classList.add('selected');
             });
         }
         
         function selectAll() {
-            const slots = document.querySelectorAll('.time-slot');
-            slots.forEach(slot => {
-                slot.classList.add('selected');
+            document.querySelectorAll('.time-block').forEach(block => {
+                block.classList.add('selected');
             });
         }
         
         function clearAll() {
-            const slots = document.querySelectorAll('.time-slot');
-            slots.forEach(slot => {
-                slot.classList.remove('selected');
+            document.querySelectorAll('.time-block').forEach(block => {
+                block.classList.remove('selected');
             });
         }
         
         function submitAvailability() {
-            const selectedSlots = document.querySelectorAll('.time-slot.selected');
-            const availability = {};
+            const selectedBlocks = document.querySelectorAll('.time-block.selected');
+            const availability = {
+                Monday: [],
+                Tuesday: [],
+                Wednesday: [],
+                Thursday: [],
+                Friday: []
+            };
             
-            days.forEach(day => {
-                availability[day] = [];
-            });
-            
-            selectedSlots.forEach(slot => {
-                const day = slot.dataset.day;
-                const hour = parseInt(slot.dataset.hour);
-                const minute = parseInt(slot.dataset.minute);
-                
-                availability[day].push({
-                    hour: hour,
-                    minute: minute
-                });
+            selectedBlocks.forEach(block => {
+                const day = block.dataset.day;
+                const time = block.dataset.time;
+                availability[day].push(time);
             });
             
             // Process availability data (in a real app, this would be sent to a server)
             console.log("Submitted availability:", availability);
             
             // Show confirmation
-            alert("Your availability has been submitted successfully!");
+            alert("Your availability has been submitted successfully!\n\n" + 
+                  JSON.stringify(availability, null, 2));
         }
     </script>
 </body>
